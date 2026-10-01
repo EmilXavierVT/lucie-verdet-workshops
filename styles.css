@@ -648,6 +648,16 @@ textarea {
   color: var(--muted);
 }
 
+@media (max-width: 1150px) {
+  .admin-card {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-controls {
+    grid-template-columns: minmax(90px, 0.5fr) minmax(90px, 0.5fr) minmax(180px, 1fr) auto;
+  }
+}
+
 @media (max-width: 900px) {
   .site-header {
     align-items: flex-start;
