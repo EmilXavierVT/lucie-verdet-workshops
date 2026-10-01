@@ -40,6 +40,40 @@ function unauthorized() {
   });
 }
 
+function loginPage(message = "") {
+  return new Response(`<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin login | Lucie Verdet</title>
+    <style>
+      :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #241d19; background: #f8f2e8; }
+      body { display: grid; min-height: 100vh; margin: 0; place-items: center; padding: 24px; }
+      form { width: min(100%, 420px); border: 1px solid rgba(36,29,25,.16); border-radius: 8px; background: #fffaf1; padding: 28px; box-shadow: 0 24px 80px rgba(61,42,29,.18); }
+      h1 { margin: 0 0 8px; font-family: Georgia, "Times New Roman", serif; font-size: 2.4rem; font-weight: 500; line-height: 1; }
+      p { margin: 0 0 22px; color: #6f625b; }
+      label { display: block; margin: 14px 0 6px; font-weight: 850; }
+      input { width: 100%; min-height: 46px; box-sizing: border-box; border: 1px solid rgba(36,29,25,.28); border-radius: 6px; padding: 10px 12px; background: #fffdf8; color: #241d19; font: inherit; }
+      button { width: 100%; min-height: 48px; margin-top: 20px; border: 1px solid #241d19; border-radius: 999px; background: #241d19; color: #fffaf1; font: inherit; font-weight: 850; cursor: pointer; }
+      .error { margin-top: 14px; color: #7a2e23; font-weight: 800; }
+    </style>
+  </head>
+  <body>
+    <form method="post" action="/admin-login">
+      <h1>Admin login</h1>
+      <p>Manage Lucie's workshop calendar and bookings.</p>
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Log in</button>
+      ${message ? `<div class="error">${message}</div>` : ""}
+    </form>
+  </body>
+</html>`, { headers: headers.html });
+}
+
 function decodeBasicAuth(header) {
   if (!header || !header.startsWith("Basic ")) return null;
   try {
@@ -66,25 +100,72 @@ function timingSafeEqual(a, b) {
   return diff === 0;
 }
 
+async function sessionToken(env) {
+  const source = `${env.ADMIN_USER || ""}:${env.ADMIN_PASSWORD || ""}:lucie-admin-v1`;
+  const bytes = new TextEncoder().encode(source);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function readCookie(request, name) {
+  const cookie = request.headers.get("cookie") || "";
+  return cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1) || "";
+}
+
 function isAdminRequest(url) {
   return url.pathname === "/admin" || url.pathname === "/admin.js" || url.pathname.startsWith("/api/admin");
 }
 
-function requireAdmin(request, env) {
+async function requireAdmin(request, env, url) {
   const expectedUser = env.ADMIN_USER;
   const expectedPassword = env.ADMIN_PASSWORD;
   if (!expectedUser || !expectedPassword) return unauthorized();
 
+  const cookieToken = readCookie(request, "lv_admin");
+  const expectedToken = await sessionToken(env);
+  if (cookieToken && timingSafeEqual(cookieToken, expectedToken)) return null;
+
   const credentials = decodeBasicAuth(request.headers.get("authorization"));
   if (
-    !credentials ||
-    !timingSafeEqual(credentials.username, expectedUser) ||
-    !timingSafeEqual(credentials.password, expectedPassword)
+    credentials &&
+    timingSafeEqual(credentials.username, expectedUser) &&
+    timingSafeEqual(credentials.password, expectedPassword)
   ) {
-    return unauthorized();
+    return null;
   }
 
-  return null;
+  if (request.method === "GET" && url.pathname === "/admin") {
+    return Response.redirect(`${url.origin}/admin-login`, 303);
+  }
+
+  return unauthorized();
+}
+
+async function handleAdminLogin(request, env) {
+  if (request.method === "GET") return loginPage();
+  if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+
+  const form = await request.formData();
+  const username = String(form.get("username") || "");
+  const password = String(form.get("password") || "");
+
+  if (!timingSafeEqual(username, env.ADMIN_USER) || !timingSafeEqual(password, env.ADMIN_PASSWORD)) {
+    return loginPage("Wrong username or password.");
+  }
+
+  const token = await sessionToken(env);
+  return new Response(null, {
+    status: 303,
+    headers: {
+      location: "/admin",
+      "set-cookie": `lv_admin=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`,
+      "cache-control": "no-store"
+    }
+  });
 }
 
 async function readReservedSeats(db) {
@@ -311,8 +392,10 @@ export default {
     const url = new URL(request.url);
 
     try {
+      if (url.pathname === "/admin-login") return handleAdminLogin(request, env);
+
       if (isAdminRequest(url)) {
-        const denied = requireAdmin(request, env);
+        const denied = await requireAdmin(request, env, url);
         if (denied) return denied;
       }
 
