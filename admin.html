@@ -38,7 +38,44 @@
           <p class="eyebrow">Calendar inventory</p>
           <h2 id="availability-title">Availability</h2>
         </div>
-        <div class="admin-list" id="workshopAdminList"></div>
+        <div class="admin-calendar-shell">
+          <div class="admin-calendar-panel">
+            <div class="calendar-toolbar">
+              <button class="icon-button" type="button" id="adminPreviousMonth" aria-label="Previous month">‹</button>
+              <strong id="adminCalendarMonth">Loading dates</strong>
+              <button class="icon-button" type="button" id="adminNextMonth" aria-label="Next month">›</button>
+            </div>
+            <div class="calendar-grid admin-calendar-grid" id="adminCalendarGrid" aria-live="polite"></div>
+          </div>
+
+          <form class="admin-editor" id="workshopEditor">
+            <div>
+              <p class="eyebrow">Selected date</p>
+              <h3 id="selectedWorkshopTitle">Choose a workshop</h3>
+              <p id="selectedWorkshopMeta">Select a date in the calendar to edit seats and visibility.</p>
+            </div>
+
+            <input id="selectedWorkshopId" type="hidden">
+
+            <div class="admin-editor-grid">
+              <label>
+                Capacity
+                <input id="selectedCapacity" type="number" min="0" max="30" value="7" disabled>
+              </label>
+              <label class="switch-row">
+                <input id="selectedOpen" type="checkbox" disabled>
+                Open for booking
+              </label>
+            </div>
+
+            <label>
+              Internal note
+              <input id="selectedNote" placeholder="Optional note for Lucie" disabled>
+            </label>
+
+            <button class="button primary" id="saveSelectedWorkshop" type="submit" disabled>Save availability</button>
+          </form>
+        </div>
       </section>
 
       <section class="admin-section" id="bookings-admin" aria-labelledby="bookings-title">
