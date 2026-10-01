@@ -30,6 +30,63 @@ function json(data, init = {}) {
   });
 }
 
+function unauthorized() {
+  return new Response("Admin login required", {
+    status: 401,
+    headers: {
+      "www-authenticate": 'Basic realm="Lucie Verdet admin", charset="UTF-8"',
+      "cache-control": "no-store"
+    }
+  });
+}
+
+function decodeBasicAuth(header) {
+  if (!header || !header.startsWith("Basic ")) return null;
+  try {
+    const decoded = atob(header.slice(6));
+    const separator = decoded.indexOf(":");
+    if (separator < 0) return null;
+    return {
+      username: decoded.slice(0, separator),
+      password: decoded.slice(separator + 1)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function timingSafeEqual(a, b) {
+  const left = new TextEncoder().encode(String(a || ""));
+  const right = new TextEncoder().encode(String(b || ""));
+  let diff = left.length ^ right.length;
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    diff |= (left[index] || 0) ^ (right[index] || 0);
+  }
+  return diff === 0;
+}
+
+function isAdminRequest(url) {
+  return url.pathname === "/admin" || url.pathname === "/admin.js" || url.pathname.startsWith("/api/admin");
+}
+
+function requireAdmin(request, env) {
+  const expectedUser = env.ADMIN_USER;
+  const expectedPassword = env.ADMIN_PASSWORD;
+  if (!expectedUser || !expectedPassword) return unauthorized();
+
+  const credentials = decodeBasicAuth(request.headers.get("authorization"));
+  if (
+    !credentials ||
+    !timingSafeEqual(credentials.username, expectedUser) ||
+    !timingSafeEqual(credentials.password, expectedPassword)
+  ) {
+    return unauthorized();
+  }
+
+  return null;
+}
+
 async function readReservedSeats(db) {
   const result = await db
     .prepare(
@@ -254,6 +311,11 @@ export default {
     const url = new URL(request.url);
 
     try {
+      if (isAdminRequest(url)) {
+        const denied = requireAdmin(request, env);
+        if (denied) return denied;
+      }
+
       if (request.method === "GET" && url.pathname === "/") return new Response(HTML, { headers: headers.html });
       if (request.method === "GET" && url.pathname === "/admin") return new Response(ADMIN_HTML, { headers: headers.html });
       if (request.method === "GET" && url.pathname === "/styles.css") return new Response(CSS, { headers: headers.css });
