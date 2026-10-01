@@ -34,7 +34,10 @@ function updateAvailability() {
   classDate.value = workshop.id;
 
   availability.className = "availability";
-  if (remaining <= 0) {
+  if (!workshop.isOpen) {
+    availability.classList.add("full");
+    availability.textContent = "This workshop is currently closed for bookings.";
+  } else if (remaining <= 0) {
     availability.classList.add("full");
     availability.textContent = "This workshop is fully booked. Choose another date or email Lucie for the waitlist.";
   } else if (remaining <= 2) {
@@ -93,7 +96,7 @@ function renderCalendar() {
     button.innerHTML = `
       <span class="day-number">${day}</span>
       <span class="day-time">${workshop.time}</span>
-      <span class="day-seats ${workshop.status === "low" ? "low" : ""}">${workshop.seatsLeft} left</span>
+      <span class="day-seats ${workshop.status === "low" ? "low" : ""}">${workshop.status === "closed" ? "Closed" : `${workshop.seatsLeft} left`}</span>
     `;
     button.addEventListener("click", () => {
       selectedClassId = workshop.id;

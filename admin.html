@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin | Lucie Verdet Workshops</title>
+    <meta name="description" content="Manage Lucie Verdet workshop availability and bookings.">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="admin-page">
+    <header class="site-header" aria-label="Admin navigation">
+      <a class="brand" href="/" aria-label="Lucie Verdet public site">
+        <span class="brand-mark" aria-hidden="true">LV</span>
+        <span>
+          <strong>Workshop Admin</strong>
+          <small>Availability and bookings</small>
+        </span>
+      </a>
+      <nav>
+        <a href="/">Public site</a>
+        <a href="#availability-admin">Availability</a>
+        <a href="#bookings-admin">Bookings</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="admin-hero" aria-labelledby="admin-title">
+        <div>
+          <p class="eyebrow">Studio operations</p>
+          <h1 id="admin-title">Manage workshop seats</h1>
+          <p class="intro">Open or close dates, change capacity, and keep an eye on reservations from one place.</p>
+        </div>
+        <div class="admin-summary" id="adminSummary" aria-live="polite">Loading admin data...</div>
+      </section>
+
+      <section class="admin-section" id="availability-admin" aria-labelledby="availability-title">
+        <div class="section-heading">
+          <p class="eyebrow">Calendar inventory</p>
+          <h2 id="availability-title">Availability</h2>
+        </div>
+        <div class="admin-list" id="workshopAdminList"></div>
+      </section>
+
+      <section class="admin-section" id="bookings-admin" aria-labelledby="bookings-title">
+        <div class="section-heading">
+          <p class="eyebrow">Guest reservations</p>
+          <h2 id="bookings-title">Bookings</h2>
+        </div>
+        <div class="booking-filter">
+          <label for="bookingStatus">Show</label>
+          <select id="bookingStatus">
+            <option value="active">Active bookings</option>
+            <option value="reserved">Reserved only</option>
+            <option value="confirmed">Confirmed only</option>
+            <option value="cancelled">Cancelled only</option>
+            <option value="all">All bookings</option>
+          </select>
+        </div>
+        <div class="admin-list" id="bookingAdminList"></div>
+      </section>
+    </main>
+
+    <script src="/admin.js"></script>
+  </body>
+</html>
