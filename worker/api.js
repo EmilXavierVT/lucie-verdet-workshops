@@ -399,7 +399,9 @@ export default {
         if (denied) return denied;
       }
 
-      if (request.method === "GET" && url.pathname === "/") return new Response(HTML, { headers: headers.html });
+      if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/booking")) {
+        return new Response(HTML, { headers: headers.html });
+      }
       if (request.method === "GET" && url.pathname === "/admin") return new Response(ADMIN_HTML, { headers: headers.html });
       if (request.method === "GET" && url.pathname === "/styles.css") return new Response(CSS, { headers: headers.css });
       if (request.method === "GET" && url.pathname === "/script.js") return new Response(CLIENT_JS, { headers: headers.js });
