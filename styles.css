@@ -150,7 +150,8 @@ h3 {
 }
 
 .hero-actions,
-.footer-links {
+.footer-links,
+.calendar-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -183,6 +184,21 @@ h3 {
 
 .button.ghost {
   background: rgba(255, 250, 241, 0.48);
+}
+
+.icon-button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(36, 29, 25, 0.28);
+  border-radius: 50%;
+  background: #fffdf8;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .quick-facts {
@@ -226,6 +242,84 @@ h3 {
 .form-heading p:not(.eyebrow),
 .fine-print {
   color: var(--muted);
+}
+
+.calendar-toolbar {
+  justify-content: space-between;
+  margin: 20px 0 12px;
+}
+
+.calendar-toolbar strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendar-day,
+.calendar-weekday {
+  min-height: 54px;
+  border-radius: 6px;
+}
+
+.calendar-weekday {
+  display: grid;
+  min-height: 24px;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  border: 1px solid rgba(36, 29, 25, 0.14);
+  background: rgba(255, 253, 248, 0.7);
+}
+
+.calendar-day.has-workshop {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  padding: 7px;
+  background: #fffdf8;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.calendar-day.has-workshop:hover,
+.calendar-day.has-workshop.selected {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.calendar-day.full {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.day-number {
+  font-weight: 950;
+}
+
+.day-time,
+.day-seats {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.15;
+}
+
+.day-seats.low {
+  color: #8a4d10;
+  font-weight: 900;
 }
 
 label {

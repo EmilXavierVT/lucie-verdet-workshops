@@ -56,11 +56,18 @@
           <div class="form-heading">
             <p class="eyebrow">Booking module</p>
             <h2 id="booking-title">Reserve your seat</h2>
-            <p>Pick a date, add your details, and send the request directly to Lucie.</p>
+            <p>Pick an available workshop in the calendar. Reserved seats are saved right away.</p>
           </div>
 
-          <label for="classDate">Workshop date</label>
-          <select id="classDate" name="classDate" required></select>
+          <div class="calendar-toolbar">
+            <button class="icon-button" type="button" id="previousMonth" aria-label="Previous month">‹</button>
+            <strong id="calendarMonth">Loading dates</strong>
+            <button class="icon-button" type="button" id="nextMonth" aria-label="Next month">›</button>
+          </div>
+
+          <div class="calendar-grid" id="calendarGrid" aria-live="polite"></div>
+
+          <input id="classDate" name="classDate" type="hidden" required>
 
           <div class="availability" id="availability" aria-live="polite"></div>
 
@@ -96,8 +103,8 @@
           <label for="notes">Anything Lucie should know?</label>
           <textarea id="notes" name="notes" rows="3" placeholder="Gift card, private group question, accessibility need, sculpture idea..."></textarea>
 
-          <button class="button primary submit" type="submit">Request booking</button>
-          <p class="fine-print">No payment is taken here. Lucie confirms availability by email.</p>
+          <button class="button primary submit" type="submit">Reserve seats</button>
+          <p class="fine-print">No payment is taken here. Lucie can follow up by email with practical details.</p>
           <div class="confirmation" id="confirmation" hidden></div>
         </form>
       </section>

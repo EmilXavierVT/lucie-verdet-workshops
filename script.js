@@ -1,51 +1,37 @@
-const workshops = [
-  { id: "2026-10-08", label: "Torsdag d. 8. oktober, kl. 17-20", capacity: 7, booked: 4 },
-  { id: "2026-10-11", label: "Søndag d. 11. oktober, kl. 13-16", capacity: 7, booked: 2 },
-  { id: "2026-10-20", label: "Tirsdag d. 20. oktober, kl. 17-20", capacity: 7, booked: 5 },
-  { id: "2026-11-05", label: "Torsdag d. 5. november, kl. 17-20", capacity: 7, booked: 3 },
-  { id: "2026-11-08", label: "Søndag d. 8. november, kl. 13-16", capacity: 7, booked: 1 },
-  { id: "2026-11-17", label: "Tirsdag d. 17. november, kl. 17-20", capacity: 7, booked: 5 },
-  { id: "2026-12-03", label: "Torsdag d. 3. december, kl. 17-20", capacity: 7, booked: 2 },
-  { id: "2026-12-06", label: "Søndag d. 6. december, kl. 13-16", capacity: 7, booked: 4 },
-  { id: "2026-12-08", label: "Tirsdag d. 8. december, kl. 17-20", capacity: 7, booked: 0 }
-];
-
 const form = document.querySelector("#bookingForm");
 const classDate = document.querySelector("#classDate");
 const seats = document.querySelector("#seats");
 const availability = document.querySelector("#availability");
 const confirmation = document.querySelector("#confirmation");
+const calendarGrid = document.querySelector("#calendarGrid");
+const calendarMonth = document.querySelector("#calendarMonth");
+const previousMonth = document.querySelector("#previousMonth");
+const nextMonth = document.querySelector("#nextMonth");
 
-function reservedSeats(id) {
-  const saved = JSON.parse(localStorage.getItem("lucieWorkshopBookings") || "[]");
-  return saved
-    .filter((booking) => booking.classId === id)
-    .reduce((total, booking) => total + Number(booking.seats || 0), 0);
-}
+let workshops = [];
+let selectedClassId = "";
+let visibleMonth = "2026-10";
 
-function seatsLeft(workshop) {
-  return workshop.capacity - workshop.booked - reservedSeats(workshop.id);
-}
+const monthNames = new Intl.DateTimeFormat("da-DK", { month: "long", year: "numeric" });
+const weekdayLabels = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
 
-function renderOptions() {
-  classDate.innerHTML = "";
-  workshops.forEach((workshop) => {
-    const option = document.createElement("option");
-    const remaining = seatsLeft(workshop);
-    option.value = workshop.id;
-    option.textContent = `${workshop.label} - ${remaining} seats left`;
-    option.disabled = remaining <= 0;
-    classDate.append(option);
-  });
+function selectedWorkshop() {
+  return workshops.find((item) => item.id === selectedClassId);
 }
 
 function updateAvailability() {
-  const workshop = workshops.find((item) => item.id === classDate.value);
-  if (!workshop) return;
+  const workshop = selectedWorkshop();
+  if (!workshop) {
+    availability.className = "availability";
+    availability.textContent = "Choose a workshop date in the calendar.";
+    seats.max = 1;
+    return;
+  }
 
-  const remaining = seatsLeft(workshop);
+  const remaining = workshop.seatsLeft;
   seats.max = Math.max(1, remaining);
   if (Number(seats.value) > remaining) seats.value = Math.max(1, remaining);
+  classDate.value = workshop.id;
 
   availability.className = "availability";
   if (remaining <= 0) {
@@ -59,68 +45,151 @@ function updateAvailability() {
   }
 }
 
-function mailtoFor(data, workshop) {
-  const subject = encodeURIComponent(`Workshop booking request - ${workshop.label}`);
-  const body = encodeURIComponent(
-    [
-      "Hi Lucie,",
-      "",
-      "I would like to request a workshop booking.",
-      "",
-      `Workshop: ${workshop.label}`,
-      `Seats: ${data.get("seats")}`,
-      `Name: ${data.get("name")}`,
-      `Email: ${data.get("email")}`,
-      `Phone: ${data.get("phone") || "Not provided"}`,
-      `Experience: ${data.get("experience")}`,
-      `Notes: ${data.get("notes") || "None"}`,
-      "",
-      "Please confirm whether the seats are available.",
-      "",
-      "Best,"
-    ].join("\n")
-  );
-  return `mailto:mail@lucieverdet.com?subject=${subject}&body=${body}`;
+function monthKey(date) {
+  return date.toISOString().slice(0, 7);
 }
 
-function saveBooking(data, workshop) {
-  const saved = JSON.parse(localStorage.getItem("lucieWorkshopBookings") || "[]");
-  saved.push({
-    classId: workshop.id,
-    classLabel: workshop.label,
-    seats: Number(data.get("seats")),
-    name: data.get("name"),
-    email: data.get("email"),
-    createdAt: new Date().toISOString()
+function renderCalendar() {
+  calendarGrid.innerHTML = "";
+  weekdayLabels.forEach((label) => {
+    const weekday = document.createElement("div");
+    weekday.className = "calendar-weekday";
+    weekday.textContent = label;
+    calendarGrid.append(weekday);
   });
-  localStorage.setItem("lucieWorkshopBookings", JSON.stringify(saved));
+
+  const [year, month] = visibleMonth.split("-").map(Number);
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const offset = (first.getUTCDay() + 6) % 7;
+  const byDate = new Map(workshops.filter((item) => item.date.startsWith(visibleMonth)).map((item) => [item.date, item]));
+
+  calendarMonth.textContent = monthNames.format(first);
+
+  for (let i = 0; i < offset; i += 1) {
+    const empty = document.createElement("div");
+    empty.className = "calendar-day";
+    calendarGrid.append(empty);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = `${visibleMonth}-${String(day).padStart(2, "0")}`;
+    const workshop = byDate.get(date);
+
+    if (!workshop) {
+      const emptyDay = document.createElement("div");
+      emptyDay.className = "calendar-day";
+      emptyDay.innerHTML = `<span class="day-number">${day}</span>`;
+      calendarGrid.append(emptyDay);
+      continue;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `calendar-day has-workshop ${workshop.status}`;
+    if (workshop.id === selectedClassId) button.classList.add("selected");
+    button.disabled = workshop.seatsLeft <= 0;
+    button.setAttribute("aria-pressed", workshop.id === selectedClassId ? "true" : "false");
+    button.innerHTML = `
+      <span class="day-number">${day}</span>
+      <span class="day-time">${workshop.time}</span>
+      <span class="day-seats ${workshop.status === "low" ? "low" : ""}">${workshop.seatsLeft} left</span>
+    `;
+    button.addEventListener("click", () => {
+      selectedClassId = workshop.id;
+      confirmation.hidden = true;
+      renderCalendar();
+      updateAvailability();
+    });
+    calendarGrid.append(button);
+  }
 }
 
-form.addEventListener("submit", (event) => {
+function updateMonth(delta) {
+  const [year, month] = visibleMonth.split("-").map(Number);
+  visibleMonth = monthKey(new Date(Date.UTC(year, month - 1 + delta, 1)));
+  renderCalendar();
+}
+
+async function loadAvailability(selectFirst = false) {
+  availability.textContent = "Loading current availability...";
+  const response = await fetch("/api/availability");
+  if (!response.ok) throw new Error("Availability failed");
+  const data = await response.json();
+  workshops = data.workshops;
+
+  if (selectFirst || !selectedWorkshop()) {
+    const nextOpen = workshops.find((item) => item.seatsLeft > 0);
+    selectedClassId = nextOpen ? nextOpen.id : "";
+    if (nextOpen) visibleMonth = nextOpen.date.slice(0, 7);
+  }
+
+  renderCalendar();
+  updateAvailability();
+}
+
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = new FormData(form);
-  const workshop = workshops.find((item) => item.id === data.get("classDate"));
+  const workshop = selectedWorkshop();
   const requestedSeats = Number(data.get("seats"));
 
-  if (!workshop || requestedSeats > seatsLeft(workshop)) {
+  if (!workshop || requestedSeats > workshop.seatsLeft) {
     confirmation.hidden = false;
     confirmation.textContent = "That class no longer has enough seats available. Please choose another date.";
-    renderOptions();
+    await loadAvailability();
     updateAvailability();
     return;
   }
 
-  saveBooking(data, workshop);
-  renderOptions();
-  updateAvailability();
+  const submit = form.querySelector(".submit");
+  submit.disabled = true;
+  submit.textContent = "Reserving...";
 
-  confirmation.hidden = false;
-  confirmation.innerHTML = `<strong>Booking request ready.</strong><br>${requestedSeats} ${requestedSeats === 1 ? "seat" : "seats"} for ${workshop.label}. Your email app will open so the request can be sent to Lucie.`;
-  window.location.href = mailtoFor(data, workshop);
+  try {
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        classId: workshop.id,
+        seats: requestedSeats,
+        name: data.get("name"),
+        email: data.get("email"),
+        phone: data.get("phone"),
+        experience: data.get("experience"),
+        notes: data.get("notes")
+      })
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      workshops = result.workshops || workshops;
+      renderCalendar();
+      updateAvailability();
+      throw new Error(result.error || "Booking failed");
+    }
+
+    workshops = result.workshops;
+    renderCalendar();
+    updateAvailability();
+    confirmation.hidden = false;
+    confirmation.innerHTML = `<strong>Seats reserved.</strong><br>${requestedSeats} ${requestedSeats === 1 ? "seat" : "seats"} for ${workshop.label}. Lucie can contact you at ${data.get("email")}.`;
+    form.reset();
+    seats.value = 1;
+  } catch (error) {
+    confirmation.hidden = false;
+    confirmation.textContent = error.message || "The booking could not be saved. Please try again.";
+  } finally {
+    submit.disabled = false;
+    submit.textContent = "Reserve seats";
+  }
 });
 
-classDate.addEventListener("change", updateAvailability);
 seats.addEventListener("input", updateAvailability);
+previousMonth.addEventListener("click", () => updateMonth(-1));
+nextMonth.addEventListener("click", () => updateMonth(1));
 
-renderOptions();
-updateAvailability();
+loadAvailability(true).catch(() => {
+  availability.className = "availability full";
+  availability.textContent = "The live booking calendar could not load. Please email Lucie directly at mail@lucieverdet.com.";
+});
