@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lucie Verdet | Clay Workshops Copenhagen</title>
+    <meta name="description" content="Book small clay modelling workshops with artist Lucie Verdet in Copenhagen. Beginners are welcome.">
+    <link rel="icon" href="https://static.wixstatic.com/media/6d299e_fc70f0139c4f408185c8e2a0abd173bf%7Emv2.jpg/v1/fill/w_32%2Ch_32%2Clg_1%2Cusm_0.66_1.00_0.01/6d299e_fc70f0139c4f408185c8e2a0abd173bf%7Emv2.jpg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Lucie Verdet home">
+        <span class="brand-mark" aria-hidden="true">LV</span>
+        <span>
+          <strong>Lucie Verdet</strong>
+          <small>Clay workshops</small>
+        </span>
+      </a>
+      <nav>
+        <a href="#book">Book</a>
+        <a href="#workshop">Workshop</a>
+        <a href="#private">Private groups</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Copenhagen atelier · Livjægergade 24</p>
+          <h1 id="hero-title">Book a small clay workshop with Lucie Verdet</h1>
+          <p class="intro">Three relaxed hours learning modelling techniques, shaping a figure by hand, and leaving the studio with a sculpture ready for firing.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#book">Choose a class</a>
+            <a class="button ghost" href="mailto:mail@lucieverdet.com">Ask a question</a>
+          </div>
+          <dl class="quick-facts" aria-label="Workshop facts">
+            <div>
+              <dt>Price</dt>
+              <dd>750 kr.</dd>
+            </div>
+            <div>
+              <dt>Group size</dt>
+              <dd>6-7 guests</dd>
+            </div>
+            <div>
+              <dt>Level</dt>
+              <dd>Beginner friendly</dd>
+            </div>
+          </dl>
+        </div>
+
+        <form class="booking-card" id="bookingForm" aria-labelledby="booking-title">
+          <span class="anchor-target" id="book" aria-hidden="true"></span>
+          <div class="form-heading">
+            <p class="eyebrow">Booking module</p>
+            <h2 id="booking-title">Reserve your seat</h2>
+            <p>Pick a date, add your details, and send the request directly to Lucie.</p>
+          </div>
+
+          <label for="classDate">Workshop date</label>
+          <select id="classDate" name="classDate" required></select>
+
+          <div class="availability" id="availability" aria-live="polite"></div>
+
+          <div class="field-row">
+            <div>
+              <label for="seats">Seats</label>
+              <input id="seats" name="seats" type="number" min="1" max="7" value="1" required>
+            </div>
+            <div>
+              <label for="experience">Experience</label>
+              <select id="experience" name="experience">
+                <option>Beginner</option>
+                <option>Some clay experience</option>
+                <option>Returning guest</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="name">Name</label>
+          <input id="name" name="name" autocomplete="name" required>
+
+          <div class="field-row">
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel">
+            </div>
+          </div>
+
+          <label for="notes">Anything Lucie should know?</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Gift card, private group question, accessibility need, sculpture idea..."></textarea>
+
+          <button class="button primary submit" type="submit">Request booking</button>
+          <p class="fine-print">No payment is taken here. Lucie confirms availability by email.</p>
+          <div class="confirmation" id="confirmation" hidden></div>
+        </form>
+      </section>
+
+      <section class="section split" id="workshop" aria-labelledby="workshop-title">
+        <div>
+          <p class="eyebrow">What happens in the studio</p>
+          <h2 id="workshop-title">A calm introduction to modelling the human form</h2>
+        </div>
+        <div class="copy-grid">
+          <p>Lucie introduces clay modelling techniques and guides guests through making their first sculpture. The class can begin from Lucie's own figures, or from images guests bring for a personal idea.</p>
+          <ul class="included-list">
+            <li>3 hours of teaching in Lucie's Copenhagen atelier</li>
+            <li>2.5 kg clay included</li>
+            <li>Firing of the finished sculpture included</li>
+            <li>Coffee, tea, and a light serving</li>
+            <li>Glaze firing available as an add-on</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="studio-band" aria-label="Artist and studio">
+        <div class="portrait-panel">
+          <img src="https://static.wixstatic.com/media/6d299e_fc70f0139c4f408185c8e2a0abd173bf%7Emv2.jpg/v1/fill/w_720,h_820,al_c,q_85,usm_0.66_1.00_0.01/6d299e_fc70f0139c4f408185c8e2a0abd173bf%7Emv2.jpg" alt="Lucie Verdet artwork detail">
+        </div>
+        <div class="studio-copy">
+          <p class="eyebrow">French artist in Copenhagen</p>
+          <h2>Sculpture, portraits, color, and hands in clay</h2>
+          <p>Lucie Verdet is inspired by faces, bodies, dance, flowers, vibrant colors, and homes. Her workshops are intimate because the work is tactile and personal: each guest has time to ask, shape, adjust, and discover.</p>
+        </div>
+      </section>
+
+      <section class="section cards" id="private" aria-labelledby="private-title">
+        <div class="section-heading">
+          <p class="eyebrow">More ways to join</p>
+          <h2 id="private-title">Gift cards and private workshops</h2>
+        </div>
+        <article>
+          <h3>Gift card</h3>
+          <p>Buy a workshop gift card with or without a fixed date. It is a simple way to give someone a creative afternoon in Copenhagen.</p>
+          <a href="mailto:mail@lucieverdet.com?subject=Gift%20card%20for%20a%20clay%20workshop">Email about gift cards</a>
+        </article>
+        <article>
+          <h3>Private group</h3>
+          <p>Arrange a private workshop in the studio or another location for up to 10 people.</p>
+          <a href="mailto:mail@lucieverdet.com?subject=Private%20clay%20workshop">Plan a private workshop</a>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer" id="contact">
+      <div>
+        <strong>Lucie Verdet</strong>
+        <p>Livjægergade 24, 2100 København Ø</p>
+      </div>
+      <div class="footer-links">
+        <a href="mailto:mail@lucieverdet.com">mail@lucieverdet.com</a>
+        <a href="tel:+4551507318">+45 5150 7318</a>
+        <a href="https://www.instagram.com/lucieverdet/" rel="noreferrer">Instagram</a>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
